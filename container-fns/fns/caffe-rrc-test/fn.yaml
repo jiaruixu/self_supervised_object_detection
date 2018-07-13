@@ -1,0 +1,50 @@
+id: caffe-rrc-test
+name: Caffe RRC Testing
+docker-image: caffe-rrc
+
+args:
+  - id: dataset-path
+    help: 'path to dataset folder'
+    default: '/mnt/ngv/self-supervised-learning/Datasets'
+  - id: image-list
+    help: 'text file with path to images relative to dataset folder'
+  - id: output-path
+    help: 'path to output folder'
+  - id: modeldir-path
+    help: 'path to models folder'
+  - id: model-path
+    default: 'models/VGGNet/KITTI/RRC_2560x768_kitti_4r4b_max_size'
+    help: 'folder containing model to train'
+  - id: model-name
+    default: 'VGG_KITTI_RRC_2560x768_kitti_4r4b_max_size'
+    help: 'name of caffemodel file without _iter_<iter number>.caffemodel suffix'
+  - id: draw-results
+    help: 'use ImageDraw to draw bboxes over the image and write to the output dir'
+    default: 0
+  - id: iter
+    default: 60000
+    help: 'iter to use for testing'
+  - id: gpus
+    default: 0
+  - id: logfile-path
+    default: '/tmp'
+
+docker-volumes:
+  - host-path: "{dataset-path}"
+    container-path: /root/rrc_detection/dataset/data
+  - host-path: "{output-path}"
+    container-path: /root/rrc_detection/output
+    read-only: False
+  - host-path: "{modeldir-path}"
+    container-path: /root/rrc_detection/models
+
+logfile-path: "{logfile-path}/testing-logs.txt"
+
+command: |
+  python rrc_feedforward.py
+  --image-list {image-list}
+  --iter {iter}
+  --model-path {model-path}
+  --model-name {model-name}
+  --gpus {gpus}
+  --draw-results {draw-results}
